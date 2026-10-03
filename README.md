@@ -75,7 +75,6 @@ letter2.txt        sample letter: an appointment, with a deliberately wrong week
 letter1.pdf        letter1 as a PDF with text, to test uploads
 letter1-scan.pdf   letter1 as an image only, to test transcription
 vendor/            pdf.js 3.11.174 and the IBM Plex fonts, so it works offline
-tools/             a headless Edge screenshot helper and the script that rebuilds the two PDFs (Windows)
 ```
 
 ## Credits
