@@ -1,0 +1,815 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Courrier</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='3' y='11' width='36' height='27' rx='5' fill='%23fff' stroke='%231a63b4' stroke-width='3'/%3E%3Cpath d='M4.5 14.5 21 27l16.5-12.5' fill='none' stroke='%231a63b4' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='38' cy='12' r='9' fill='%231a63b4'/%3E%3Cpath d='m34 12 3 3 5-6' fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+  /* Look and feel follow the portfolio site (cool grey ground, white cards, logo blue, IBM Plex).
+     Fonts are vendored so the page makes no outside requests. */
+  @font-face { font-family: 'IBM Plex Sans'; font-style: normal; font-weight: 400 700; font-display: swap; src: url(vendor/fonts/ibm-plex-sans-latin.woff2) format('woff2'); }
+  @font-face { font-family: 'IBM Plex Serif'; font-style: normal; font-weight: 400; font-display: swap; src: url(vendor/fonts/ibm-plex-serif-latin-400.woff2) format('woff2'); }
+  :root {
+    --paper: #eef1f0;
+    --paper-tint: #e3e7e6;
+    --sheet: #ffffff;
+    --ink: #12171a;
+    --text: #39424a;
+    --muted: #5a666c;
+    --line: rgba(18, 23, 26, .13);
+    --accent: #1a63b4;
+    --accent-hover: #175aa4;
+    --accent-rgb: 26, 99, 180;
+    --accent-soft: rgba(26, 99, 180, .12);
+    --warn: #8a5a00;
+    --warn-soft: #fbedc8;
+    --ok: #2f6b45;
+    --ok-soft: #dcebdf;
+    --sans: 'IBM Plex Sans', system-ui, -apple-system, "Segoe UI", sans-serif;
+    --serif: 'IBM Plex Serif', Georgia, "Times New Roman", serif;
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius: 16px;
+    --transition: .25s ease;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; background: var(--paper); color: var(--text); font: 15px/1.6 var(--sans); -webkit-font-smoothing: antialiased; }
+  h1, h2 { color: var(--ink); }
+  :focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  body > header { padding: 28px 24px 22px; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; border-bottom: 1px solid rgba(var(--accent-rgb), .1); }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .mark { width: 44px; height: 44px; flex: none; color: var(--accent); }
+  body > header h1 { margin: 0; font: 600 32px/1.1 var(--sans); letter-spacing: -.025em; }
+  body > header p { margin: 0; color: var(--muted); }
+  .badge { margin-top: 6px; font-size: 13px; font-weight: 500; line-height: 1.4; color: var(--accent); background: rgba(var(--accent-rgb), .09); border: 1px solid rgba(var(--accent-rgb), .28); border-radius: 10px; padding: 4px 11px; }
+  main { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; padding: 0 24px 24px; align-items: start; }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+
+  /* Left: the letter */
+  .left { position: sticky; top: 12px; }
+  @media (max-width: 900px) { .left { position: static; } }
+  .tools { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  button, .btn { font: inherit; font-size: 14px; font-weight: 500; border: 1px solid var(--line); background: var(--sheet); color: var(--ink); border-radius: var(--radius-sm); padding: 7px 14px; cursor: pointer; transition: border-color var(--transition), color var(--transition), background-color var(--transition), box-shadow var(--transition), transform var(--transition); }
+  button:hover, .btn:hover { border-color: var(--accent); color: var(--accent); }
+  button.primary { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; letter-spacing: .02em; }
+  button.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); color: #fff; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(var(--accent-rgb), .25); }
+  button:disabled, button:disabled:hover { opacity: .5; cursor: default; transform: none; box-shadow: none; }
+  button.link { border: 0; background: none; padding: 0; color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+  button.link:hover { color: var(--accent-hover); }
+  .pick { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+  .pick:hover { color: var(--accent-hover); }
+  .paper-wrap { position: relative; max-height: calc(100vh - 160px); overflow: auto; border-radius: var(--radius); border: 1px solid var(--line); box-shadow: 0 24px 55px -28px rgba(18, 23, 26, .15); background: var(--sheet); }
+  @media (max-width: 900px) { .paper-wrap { max-height: 60vh; } }
+  .paper { position: relative; padding: 32px 36px 32px 52px; font: 14.5px/1.65 var(--serif); color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere; min-height: 420px; }
+  .pin { position: absolute; left: 14px; width: 24px; height: 24px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font: 600 12px/24px var(--sans); text-align: center; cursor: pointer; transition: transform .15s, background-color .15s, color .15s; }
+  .pin.on { background: var(--accent); color: #fff; transform: scale(1.12); }
+  ::highlight(found) { background-color: rgba(26, 99, 180, .10); }
+  ::highlight(focus) { background-color: rgba(26, 99, 180, .28); }
+  textarea { width: 100%; font: inherit; border: 1px solid var(--line); border-radius: var(--radius-md); padding: 10px 12px; background: var(--sheet); color: var(--ink); resize: vertical; transition: border-color var(--transition); }
+  textarea:focus { border-color: var(--accent); outline: none; }
+  .empty { padding: 28px; }
+  .empty h2 { margin: 0 0 6px; font: 600 20px/1.3 var(--sans); letter-spacing: -.01em; }
+  .empty p { margin: 0 0 14px; color: var(--muted); }
+  .note { font-size: 13px; padding: 8px 12px; background: var(--warn-soft); color: var(--warn); border-radius: var(--radius-md); margin-bottom: 10px; }
+  .photo { max-width: 100%; max-height: 220px; border-radius: var(--radius-md); display: block; margin-bottom: 10px; }
+  .viewswitch { margin-left: auto; display: inline-flex; border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; }
+  .viewswitch button { border: 0; border-radius: 0; padding: 7px 14px; }
+  .viewswitch button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+  .pdfview { display: grid; gap: 14px; padding: 14px; background: var(--paper-tint); }
+  .pdfpage { position: relative; background: #fff; box-shadow: 0 1px 3px rgba(18, 23, 26, .18); }
+  .pdfpage canvas { width: 100%; height: 100%; display: block; }
+  .marks { position: absolute; inset: 0; }
+  .marks .pin { left: 1.5%; margin-top: -2px; }
+  .hl { position: absolute; background: rgba(26, 99, 180, .14); border-radius: 2px; mix-blend-mode: multiply; transition: background-color .15s; }
+  .hl.on { background: rgba(26, 99, 180, .38); }
+  .note.plain { background: var(--ok-soft); color: var(--ok); }
+  .drop-hint { display: none; position: absolute; inset: 0; z-index: 3; place-items: center; background: rgba(255, 255, 255, .92); border: 2px dashed var(--accent); border-radius: var(--radius); font: 600 17px/1.3 var(--sans); color: var(--accent); }
+  .paper-wrap.over .drop-hint { display: grid; }
+
+  /* Right: the reading */
+  .right { display: grid; gap: 14px; }
+  #reading, #actions { display: grid; gap: 10px; }
+  .status { color: var(--muted); font-size: 14px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-height: 28px; }
+  .chip { font-size: 12px; border-radius: 99px; padding: 2px 9px; background: var(--sheet); border: 1px solid var(--line); }
+  .chip.done { background: var(--ok-soft); border-color: transparent; color: var(--ok); }
+  .section-title { margin: 10px 0 0; font: 600 14px/1.3 var(--sans); color: var(--accent); }
+  .card { background: var(--sheet); border: 1px solid var(--line); border-radius: var(--radius); position: relative; padding: 16px 18px 16px 56px; display: grid; gap: 2px; transition: border-color var(--transition), box-shadow var(--transition); }
+  .card.on { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(var(--accent-rgb), .15); }
+  .card .num { position: absolute; left: 18px; top: 16px; width: 24px; height: 24px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font: 600 12px/24px var(--sans); text-align: center; }
+  .card .num.none { background: var(--warn-soft); color: var(--warn); }
+  .card .label { font-size: 13px; font-weight: 600; color: var(--accent); }
+  .card .value { font-size: 16px; color: var(--ink); }
+  .card .src { font-size: 13px; color: var(--muted); }
+  .card .src.miss { color: var(--warn); }
+  .deadline .value { font: 600 22px/1.3 var(--sans); letter-spacing: -.01em; }
+  .math { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .left-days { display: inline-block; margin-left: 6px; font: 600 12px var(--sans); letter-spacing: 0; padding: 2px 8px; border-radius: 99px; background: var(--accent); color: #fff; vertical-align: middle; }
+  ul.docs { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 4px; }
+  ul.docs li { display: flex; gap: 8px; align-items: baseline; }
+
+  .action { background: var(--sheet); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; display: grid; gap: 10px; transition: border-color var(--transition); }
+  .action.approved { border-color: var(--ok); background: #f8fbf9; }
+  .action.skipped { opacity: .55; }
+  .action header { display: flex; gap: 10px; align-items: baseline; }
+  .action .kind { font: 600 13px/1 var(--sans); color: var(--accent); }
+  .action .title { font-weight: 600; color: var(--ink); }
+  .action .why { font-size: 13px; color: var(--muted); }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .state { font-size: 13px; color: var(--ok); font-weight: 600; }
+  input[type=date] { font: inherit; border: 1px solid var(--line); border-radius: var(--radius-md); padding: 5px 8px; background: var(--sheet); color: var(--ink); }
+  .gloss { font-size: 13px; color: var(--muted); white-space: pre-wrap; border-left: 2px solid var(--accent); padding-left: 10px; }
+  .log { background: var(--sheet); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 16px; font-size: 14px; }
+  .log ol { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+  .log .when { color: var(--muted); font-variant-numeric: tabular-nums; margin-right: 6px; }
+  footer { margin: 0 24px; padding: 16px 0 24px; border-top: 1px solid rgba(var(--accent-rgb), .1); color: var(--muted); font-size: 13px; }
+  .spinner { width: 12px; height: 12px; border: 2px solid var(--line); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <svg class="mark" viewBox="0 0 48 48" aria-hidden="true">
+      <rect x="3" y="11" width="36" height="27" rx="5" fill="#fff" stroke="currentColor" stroke-width="2.5"/>
+      <path d="M4.5 14.5 21 27l16.5-12.5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="38" cy="12" r="9" fill="currentColor" style="stroke: var(--paper)" stroke-width="3"/>
+      <path d="m34 12 3 3 5-6" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <h1>Courrier</h1>
+  </div>
+  <p>Understand a French letter, then decide what to do about it.</p>
+  <span class="badge">gemma4:12b running on this computer. Nothing leaves it.</span>
+</header>
+
+<main>
+  <section class="left">
+    <div class="tools">
+      <button id="btnSample">Sample: missing papers</button>
+      <button id="btnSample2">Sample: appointment</button>
+      <button id="btnStart" hidden>Start over</button>
+      <div class="viewswitch" id="viewSwitch" hidden><button data-view="doc">Document</button><button data-view="text">Text</button></div>
+    </div>
+    <div id="photoNote" hidden></div>
+    <div class="paper-wrap" id="paperWrap">
+      <div class="drop-hint">Drop the letter to read it</div>
+      <div class="empty" id="empty">
+        <h2>Paste the letter here</h2>
+        <p>Or drop a PDF, a photo or a text file anywhere on this sheet, or <label class="pick">choose one from your computer<input id="upload" type="file" accept=".pdf,application/pdf,image/*,.txt,text/plain" hidden></label>. Courrier explains it in plain English and points to the exact line each answer comes from.</p>
+        <textarea id="pasteBox" rows="10" placeholder="Madame, Monsieur, ..."></textarea>
+        <div class="row" style="margin-top:10px"><button class="primary" id="btnRead">Read this letter</button></div>
+      </div>
+      <div class="paper" id="paper" hidden></div>
+      <div class="pdfview" id="pdfView" hidden></div>
+    </div>
+  </section>
+
+  <section class="right" id="right">
+    <div class="status" id="status">Waiting for a letter.</div>
+    <div id="reading"></div>
+    <div id="actions"></div>
+    <div id="logWrap" hidden>
+      <p class="section-title">What you did</p>
+      <div class="log"><ol id="log"></ol></div>
+    </div>
+  </section>
+</main>
+
+<footer>Courrier uses AI and can be wrong. Every answer links to the line it came from, so check what matters. It never sends anything. You do.</footer>
+
+<script src="vendor/pdf.min.js"></script>
+<script>
+const MODEL = new URLSearchParams(location.search).get('model') || 'gemma4:12b';
+document.querySelector('.badge').textContent = MODEL + ' running on this computer. Nothing leaves it.';
+const $ = id => document.getElementById(id);
+let letter = '';            // the text the reading is pinned to
+let reading = null;         // model output
+let spans = {};             // field key -> array of [start, end] in letter, or null
+let fieldOrder = [];        // cards in display order, for numbering
+const log = [];
+
+// ---------- model calls ----------
+const quoteField = { type: 'object', properties: { value: { type: 'string' }, quote: { type: 'string' } }, required: ['value', 'quote'] };
+const READ_SCHEMA = {
+  type: 'object',
+  properties: {
+    sender: quoteField,
+    letter_date: { type: 'object', properties: { iso: { type: 'string' }, quote: { type: 'string' } }, required: ['iso', 'quote'] },
+    reference: quoteField,
+    about: quoteField,
+    what_they_want: quoteField,
+    deadline: { type: 'object', properties: { kind: { type: 'string', enum: ['fixed_date', 'days_after_letter', 'none'] }, iso: { type: 'string' }, days: { type: 'integer' }, quote: { type: 'string' } }, required: ['kind', 'quote'] },
+    if_ignored: quoteField,
+    documents: { type: 'array', items: quoteField },
+    how_to_send: quoteField,
+    actions: { type: 'array', items: { type: 'object', properties: { type: { type: 'string', enum: ['reminder', 'reply', 'checklist'] }, title: { type: 'string' }, why_quote: { type: 'string' } }, required: ['type', 'title', 'why_quote'] } },
+  },
+  required: ['sender', 'letter_date', 'reference', 'about', 'what_they_want', 'deadline', 'if_ignored', 'documents', 'how_to_send', 'actions'],
+};
+const READ_SYSTEM = `You read French administrative letters for people whose first language is not French.
+Rules:
+- "value" fields are plain, short English a 12-year-old understands.
+- Every "quote" must be copied character for character from the letter, 3 to 25 words, no paraphrase. If the letter does not say it, value is "Not stated" and quote is "".
+- "documents" has one item per document or piece of information they ask for. Empty array if none.
+- Do not compute dates. For a deadline counted in days, give kind "days_after_letter" and "days". For a fixed date give kind "fixed_date" and "iso". The app does the maths.
+- Propose at most one action of each type (reminder, reply, checklist), only if the letter calls for it. Each needs a why_quote from the letter.`;
+
+async function chat(messages, schema, onToken) {
+  const res = await fetch('/api/chat', {
+    method: 'POST',
+    body: JSON.stringify({ model: MODEL, stream: true, think: false, format: schema, options: { temperature: 0, num_ctx: 16384 }, messages }),
+  });
+  const reader = res.body.getReader();
+  const dec = new TextDecoder();
+  let buf = '', text = '';
+  for (;;) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buf += dec.decode(value, { stream: true });
+    let nl;
+    while ((nl = buf.indexOf('\n')) >= 0) {
+      const line = buf.slice(0, nl); buf = buf.slice(nl + 1);
+      if (!line.trim()) continue;
+      const j = JSON.parse(line);
+      if (j.error) throw new Error(j.error);
+      text += j.message?.content || '';
+      onToken?.(text);
+    }
+  }
+  return text;
+}
+
+// ---------- quote pinning: the UI checks the model ----------
+function fold(s) { return s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase(); }
+function buildIndex(text) {
+  let norm = ''; const map = [];
+  for (let i = 0; i < text.length; i++) {
+    for (const ch of fold(text[i])) if (/[\p{L}\p{N}]/u.test(ch)) { norm += ch; map.push(i); }
+  }
+  return { norm, map };
+}
+function findQuote(idx, quote) {
+  if (!quote) return null;
+  const tryOne = q => {
+    const n = buildIndex(q).norm;
+    if (n.length < 6) return null;
+    const at = idx.norm.indexOf(n);
+    return at < 0 ? null : [idx.map[at], idx.map[at + n.length - 1] + 1];
+  };
+  const whole = tryOne(quote);
+  if (whole) return [whole];
+  // The model sometimes stitches several lines into one quote. Accept it only if every part is in the letter.
+  const parts = quote.split(/[;\n•]|\.\s/).map(s => s.trim()).filter(s => s.length > 10);
+  if (parts.length < 2) return null;
+  const found = parts.map(tryOne);
+  return found.every(Boolean) ? found : null;
+}
+
+// ---------- dates: the code does the maths, not the model ----------
+const MONTHS = ['janvier','fevrier','mars','avril','mai','juin','juillet','aout','septembre','octobre','novembre','decembre'];
+function frenchDateIn(text) {
+  const m = fold(text).match(/(\d{1,2})(?:er)?\s+(janvier|fevrier|mars|avril|mai|juin|juillet|aout|septembre|octobre|novembre|decembre)\s+(\d{4})/);
+  if (m) return new Date(+m[3], MONTHS.indexOf(m[2]), +m[1]);
+  const n = text.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  return n ? new Date(+n[3], +n[2] - 1, +n[1]) : null;
+}
+const fmt = d => d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+const today = () => { const t = new Date(); return new Date(t.getFullYear(), t.getMonth(), t.getDate()); };
+
+// A date is only a deadline if the letter treats it as one. In testing, both models offered the letter's own date
+// and a signature date as deadlines, so the words around the quote have to say "deadline" too.
+const DEADLINE_WORDS = /avant le|au plus tard|jusqu|date limite|delai|d'ici|a compter|expir|echeance|validite|convoqu|rendez-vous|entretien|parvenir|a regler|a payer|date\s*:/;
+const NOT_DEADLINE_WORDS = /sign|emis le|recu le|exemplaire|naissance|\bnee? le/;
+function deadlineCheck(quote, letterDate) {
+  const at = findQuote(buildIndex(letter), quote);
+  if (!at) return 'The AI named a deadline that Courrier could not find in the letter.';
+  const [s, e] = at[0];
+  const before = fold(letter.slice(Math.max(0, s - 100), s)), near = fold(letter.slice(Math.max(0, s - 40), s));
+  const around = before + fold(letter.slice(s, e + 40));
+  const own = frenchDateIn(quote);
+  if (own && letterDate && iso(own) === iso(letterDate)) return `The AI offered “${quote}” as a deadline, but that is the date of the letter itself.`;
+  if (NOT_DEADLINE_WORDS.test(near) || !DEADLINE_WORDS.test(around.replace(/[’]/g, "'")))
+    return `The AI offered “${quote}” as a deadline, but the letter does not present it as one.`;
+  return '';
+}
+
+function computeDeadline(r) {
+  const dl = { ...(r.deadline || {}) };
+  // Letter date: trust the date written in the quote over the model's iso, and say so if they disagree.
+  const quoted = frenchDateIn(r.letter_date?.quote || '');
+  const modelIso = r.letter_date?.iso ? new Date(r.letter_date.iso + 'T00:00') : null;
+  const letterDate = quoted || (modelIso && !isNaN(modelIso) ? modelIso : null);
+  const dateConflict = quoted && modelIso && iso(quoted) !== iso(modelIso);
+  // "Validité du devis : 30 jours" is a count of days even when the AI files it as a fixed date.
+  if (dl.kind === 'fixed_date' && /\d+\s*jours?/i.test(dl.quote || '') && !frenchDateIn(dl.quote || '')) dl.kind = 'days_after_letter';
+  if (dl.kind === 'fixed_date' || dl.kind === 'days_after_letter') {
+    const problem = deadlineCheck(dl.quote || '', letterDate);
+    if (problem) return { date: null, rejected: true, math: problem + ' Courrier found no deadline it can confirm.' };
+  }
+  if (dl.kind === 'days_after_letter') {
+    // The quote has to say "N jours" itself. "48 heures à l'avance" is a notice period, not a deadline counted from the letter.
+    const written = +((dl.quote || '').match(/(\d+)\s*jours?/i)?.[1] || 0);
+    if (!written || (dl.days && dl.days !== written))
+      return { date: null, math: `The AI pointed to “${dl.quote}” as the deadline, but that does not count days from the letter. Courrier cannot confirm a deadline, so check the letter for the date.` };
+    const days = written;
+    if (!letterDate || !days) return { date: null, math: 'The letter counts days from a date Courrier could not read. Check the letter.' };
+    const due = addDays(letterDate, days);
+    return { date: due, math: `Letter dated ${fmt(letterDate)} + ${days} days = ${fmt(due)}. Worked out by Courrier, not by the AI.` + (dateConflict ? ' The AI misread the letter date, so Courrier used the date written on the letter.' : '') };
+  }
+  if (dl.kind === 'fixed_date') {
+    const d = frenchDateIn(dl.quote || '') || (dl.iso ? new Date(dl.iso + 'T00:00') : null);
+    if (!d || isNaN(d)) return { date: null, math: 'Courrier could not read this date. Check the letter.' };
+    const time = (dl.quote || '').match(/(\d{1,2})\s*h\s*(\d{2})?/i);
+    let math = 'Date written in the letter.' + (time ? ` Time: ${time[1]}:${time[2] || '00'}.` : '');
+    // Letters get weekdays wrong. If the written weekday and the date disagree, the person should ask.
+    const DAYS_FR = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+    const written = DAYS_FR.findIndex(w => fold(dl.quote || '').includes(w));
+    const warn = written >= 0 && written !== d.getDay()
+      ? `The letter says ${['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][written]}, but ${d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} is a ${d.toLocaleDateString('en-GB', { weekday: 'long' })}. One of them is a mistake, so it is worth asking them which day is right.`
+      : '';
+    return { date: d, math, warn };
+  }
+  return { date: null, math: '' };
+}
+
+// ---------- rendering ----------
+function showLetter(text) {
+  letter = text;
+  $('empty').hidden = true; $('btnStart').hidden = false;
+  $('paper').textContent = text;
+  setView(doc?.exact ? 'doc' : 'text');
+  $('paperWrap').scrollTop = 0;
+}
+
+// ---------- the PDF itself, with highlights on the page ----------
+let doc = null;     // { pdf, items: [{ start, end, page, x, y, w, h }] }, positions as fractions of the page
+let view = 'text';
+
+function setView(v) {
+  view = v;
+  $('viewSwitch').hidden = !doc;
+  $('pdfView').hidden = v !== 'doc';
+  $('paper').hidden = v !== 'text';
+  document.querySelectorAll('#viewSwitch button').forEach(b => b.setAttribute('aria-pressed', b.dataset.view === v));
+  if (v === 'text' && reading) placePins();
+}
+function clearDoc() { doc = null; $('pdfView').innerHTML = ''; }
+
+async function renderPdfPages() {
+  const box = $('pdfView'); box.innerHTML = '';
+  for (let n = 1; n <= doc.pdf.numPages; n++) {
+    const page = await doc.pdf.getPage(n);
+    const base = page.getViewport({ scale: 1 });
+    const vp = page.getViewport({ scale: 2 });
+    const sheet = document.createElement('div');
+    sheet.className = 'pdfpage'; sheet.dataset.page = n; sheet.style.aspectRatio = `${base.width} / ${base.height}`;
+    const canvas = Object.assign(document.createElement('canvas'), { width: vp.width, height: vp.height });
+    sheet.append(canvas, Object.assign(document.createElement('div'), { className: 'marks' }));
+    box.append(sheet);
+    await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+  }
+}
+
+// Same spans as the text view, drawn over the page: each quote covers the PDF text runs it overlaps.
+const measureCtx = document.createElement('canvas').getContext('2d');
+measureCtx.font = '20px Arial, Helvetica, sans-serif';
+const measure = t => measureCtx.measureText(t).width;
+
+function renderPdfMarks() {
+  if (!doc) return;
+  document.querySelectorAll('#pdfView .marks').forEach(m => m.innerHTML = '');
+  const first = {};
+  for (const [key, list] of Object.entries(spans)) {
+    if (!list || key.startsWith('documents.')) continue;
+    for (const [s, e] of list) for (const it of doc.items) {
+      if (it.end <= s || it.start >= e) continue;
+      // A quote can start mid-run. Measure the characters before it, since letters are not all the same width.
+      const str = letter.slice(it.start, it.end);
+      const frac = k => (k <= 0 ? 0 : k >= str.length ? 1 : measure(str.slice(0, k)) / (measure(str) || 1));
+      const a = frac(Math.max(s, it.start) - it.start), b = frac(Math.min(e, it.end) - it.start);
+      const hl = document.createElement('div');
+      hl.className = 'hl'; hl.dataset.key = key;
+      Object.assign(hl.style, { left: (it.x + it.w * a) * 100 + '%', top: it.y * 100 + '%', width: it.w * (b - a) * 100 + '%', height: it.h * 100 + '%' });
+      document.querySelector(`#pdfView .pdfpage[data-page="${it.page}"] .marks`).append(hl);
+      if (!first[key] || it.page < first[key].page || (it.page === first[key].page && it.y < first[key].y)) first[key] = { page: it.page, y: it.y };
+    }
+  }
+  const used = {};
+  fieldOrder.forEach((key, i) => {
+    const f = first[key]; if (!f) return;
+    let y = f.y; used[f.page] ||= [];
+    while (used[f.page].some(u => Math.abs(u - y) < 0.026)) y += 0.026;   // stack pins that share a line
+    used[f.page].push(y);
+    const pin = document.createElement('span');
+    pin.className = 'pin'; pin.textContent = i + 1; pin.dataset.key = key; pin.style.top = y * 100 + '%';
+    pin.title = 'Show what Courrier read here';
+    pin.onclick = () => { focusField(key, true); document.querySelector(`.card[data-key="${key}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }); };
+    document.querySelector(`#pdfView .pdfpage[data-page="${f.page}"] .marks`).append(pin);
+  });
+}
+function textRange(start, end) {
+  const node = $('paper').firstChild;
+  const r = new Range(); r.setStart(node, start); r.setEnd(node, end); return r;
+}
+function paintHighlights(focusKey) {
+  if (!window.CSS?.highlights) return;
+  const all = [], focus = [];
+  for (const [k, list] of Object.entries(spans)) for (const [s, e] of list || []) {
+    const r = textRange(s, e); all.push(r); if (k === focusKey) focus.push(r);
+  }
+  CSS.highlights.set('found', new Highlight(...all));
+  CSS.highlights.set('focus', new Highlight(...focus));
+}
+function placePins() {
+  const paper = $('paper');
+  paper.querySelectorAll('.pin').forEach(n => n.remove());
+  const top0 = paper.getBoundingClientRect().top;
+  const used = [];
+  fieldOrder.forEach((key, i) => {
+    const list = spans[key]; if (!list) return;
+    let y = textRange(...list[0]).getClientRects()[0]?.top - top0;
+    if (y == null || isNaN(y)) return;
+    while (used.some(u => Math.abs(u - y) < 26)) y += 26;   // stack pins that share a line
+    used.push(y);
+    const pin = document.createElement('span');
+    pin.className = 'pin'; pin.textContent = i + 1; pin.style.top = y + 'px'; pin.dataset.key = key;
+    pin.title = 'Show what Courrier read here';
+    pin.onclick = () => { focusField(key, true); document.querySelector(`.card[data-key="${key}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }); };
+    paper.appendChild(pin);
+  });
+}
+function focusField(key, scrollLetter) {
+  document.querySelectorAll('.card').forEach(c => c.classList.toggle('on', c.dataset.key === key));
+  document.querySelectorAll('.pin').forEach(p => p.classList.toggle('on', p.dataset.key === key));
+  document.querySelectorAll('#pdfView .hl').forEach(h => h.classList.toggle('on', h.dataset.key === key));
+  paintHighlights(key);
+  const target = view === 'doc' ? document.querySelector(`#pdfView .hl[data-key="${key}"]`) : spans[key] && textRange(...spans[key][0]);
+  if (scrollLetter && target) {
+    const wrap = $('paperWrap');
+    const rect = target.getBoundingClientRect();
+    const wrapRect = wrap.getBoundingClientRect();
+    if (rect.top < wrapRect.top + 40 || rect.bottom > wrapRect.bottom - 40)
+      wrap.scrollBy({ top: rect.top - wrapRect.top - wrap.clientHeight / 3, behavior: 'smooth' });
+  }
+}
+
+const FIELDS = [
+  ['sender', 'Who wrote to you'],
+  ['about', 'What it is about'],
+  ['what_they_want', 'What they want from you'],
+  ['deadline', 'By when'],
+  ['if_ignored', 'If you do nothing'],
+  ['documents', 'Documents they ask for'],
+  ['how_to_send', 'How to reach them'],
+  ['reference', 'Reference to quote'],
+];
+
+function srcLine(key) {
+  if (key === 'deadline' && reading.computed?.rejected) return '';
+  if (spans[key] && reading.support?.[key] === false)
+    return `<span class="src miss">Courrier points to line ${lineOf(spans[key][0][0])}, but that line does not seem to say this. Check it yourself.</span>`;
+  return spans[key]
+    ? `<span class="src">From the letter, line ${lineOf(spans[key][0][0])}. Hover to see it.</span>`
+    : `<span class="src miss">Courrier could not find this in the letter. Check it yourself before you rely on it.</span>`;
+}
+const trusted = key => !!spans[key] && reading.support?.[key] !== false;
+
+// A pin proves the quote is in the letter, not that the answer says what the quote says.
+// In testing, an answer about registered post was pinned to the child's name. So each pinned answer gets a second look:
+// numbers in the answer must appear in the letter (plain code), and the model judges whether the quote supports the answer.
+async function checkSupport() {
+  const items = [];
+  for (const k of fieldOrder) {
+    if (k === 'deadline') continue;
+    if (k === 'documents') reading.documents.forEach((d, j) => spans[`documents.${j}`] && items.push({ id: `documents.${j}`, answer: d.value, quote: d.quote }));
+    else if (spans[k]) items.push({ id: k, answer: reading[k].value, quote: reading[k].quote });
+  }
+  const support = {};
+  const letterNorm = buildIndex(letter).norm;
+  for (const it of items) {
+    const nums = (it.answer.match(/\d{2,}(?:[.,]\d+)?/g) || []).map(n => buildIndex(n).norm);
+    if (nums.some(n => !letterNorm.includes(n))) support[it.id] = false;
+  }
+  // A strict "does the quote say exactly this" test flagged correct plain-English summaries in testing.
+  // The failure worth catching is a pin on an unrelated line, or a line that says the opposite.
+  const schema = { type: 'object', properties: { checks: { type: 'array', items: { type: 'object', properties: { id: { type: 'string' }, verdict: { type: 'string', enum: ['matches', 'unrelated', 'contradicts'] } }, required: ['id', 'verdict'] } } }, required: ['checks'] };
+  const sys = `You check another assistant's work. Each item has an answer in plain English and the line of a French letter it was based on.
+Answers are short summaries, so they will not repeat the line word for word.
+- "matches": the line is about the same thing as the answer and does not contradict it.
+- "unrelated": the line is about something else, so it cannot be where the answer came from.
+- "contradicts": the line says something different from the answer.`;
+  const out = JSON.parse(await chat([{ role: 'system', content: sys }, { role: 'user', content: JSON.stringify(items) }], schema));
+  for (const c of out.checks || []) if (c.verdict && c.verdict !== 'matches') support[c.id] = false;
+  // The documents card is supported only if every document line is.
+  if (reading.documents?.some((_, j) => support[`documents.${j}`] === false)) support.documents = false;
+  return support;
+}
+const lineOf = pos => letter.slice(0, pos).split('\n').length;
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+function renderReading() {
+  const r = reading, idx = buildIndex(letter);
+  spans = {};
+  for (const [key] of FIELDS) {
+    if (key === 'documents') {
+      (r.documents || []).forEach((d, i) => spans[`documents.${i}`] = findQuote(idx, d.quote));
+      const docSpans = (r.documents || []).map((_, i) => spans[`documents.${i}`]).filter(Boolean);
+      spans.documents = docSpans.length ? docSpans.flat() : null;
+    } else spans[key] = findQuote(idx, r[key]?.quote);
+  }
+  spans.letter_date = findQuote(idx, r.letter_date?.quote);
+  fieldOrder = FIELDS.map(f => f[0]).filter(k => !(k === 'documents' && !(r.documents || []).length) && r[k]?.value !== 'Not stated');
+
+  const dl = computeDeadline(r);
+  reading.computed = dl;
+  if (dl.rejected) spans.deadline = null;   // no pin on a date the letter does not call a deadline
+  let html = '<p class="section-title">What the letter says</p>';
+  fieldOrder.forEach((key, i) => {
+    const label = FIELDS.find(f => f[0] === key)[1];
+    const n = key === 'deadline' && dl.rejected ? `<span class="num">–</span>` : `<span class="num ${trusted(key) ? '' : 'none'}">${spans[key] ? i + 1 : '?'}</span>`;
+    let value;
+    if (key === 'deadline') {
+      if (dl.date) {
+        const left = Math.round((dl.date - today()) / 864e5);
+        const tag = left >= 0 ? `<span class="left-days">${left} day${left === 1 ? '' : 's'} left</span>` : `<span class="left-days" style="background:var(--warn)">Passed</span>`;
+        const passed = left < 0 ? `<div class="note" style="margin:6px 0 2px">This date passed ${-left} day${left === -1 ? '' : 's'} ago, so Courrier suggests no reminder. If you still need to act, contact them.</div>` : '';
+        value = `<span class="value">${fmt(dl.date)} ${tag}</span><span class="math">${esc(dl.math)}</span>${dl.warn ? `<div class="note" style="margin:6px 0 2px">${esc(dl.warn)}</div>` : ''}${passed}`;
+      } else value = `<span class="value">${dl.math && !dl.rejected ? 'Unclear, check the letter' : 'No deadline found'}</span><span class="math">${esc(dl.math)}</span>`;
+    } else if (key === 'documents') {
+      value = `<ul class="docs">${r.documents.map((d, j) => `<li><span>${esc(d.value)}</span>${!spans[`documents.${j}`] ? ' <span class="src miss">(not found in the letter)</span>' : r.support?.[`documents.${j}`] === false ? ' <span class="src miss">(the line it points to does not say this)</span>' : ''}</li>`).join('')}</ul>`;
+    } else value = `<span class="value">${esc(r[key].value)}</span>`;
+    html += `<div class="card ${key === 'deadline' ? 'deadline' : ''}" data-key="${key}" tabindex="0">${n}<span class="label">${label}</span>${value}${srcLine(key)}</div>`;
+  });
+  $('reading').innerHTML = html;
+  document.querySelectorAll('.card').forEach(c => {
+    c.onmouseenter = c.onfocus = () => focusField(c.dataset.key, true);
+  });
+  paintHighlights(null);
+  placePins();
+  renderPdfMarks();
+  renderActions();
+}
+
+// ---------- actions: the AI proposes, the person decides ----------
+let actions = [];
+function buildActions() {
+  const r = reading, seen = new Set();
+  actions = [];
+  // A reminder only makes sense for a deadline Courrier confirmed and that has not passed.
+  const future = reading.computed?.date && reading.computed.date >= today();
+  for (const a of r.actions || []) if (!seen.has(a.type) && (a.type !== 'reminder' || future)) { seen.add(a.type); actions.push({ ...a, state: 'proposed' }); }
+  if (!seen.has('reminder') && future) actions.unshift({ type: 'reminder', title: 'Set a reminder before the deadline', why_quote: r.deadline.quote, state: 'proposed' });
+  if (!seen.has('checklist') && (r.documents || []).length) actions.push({ type: 'checklist', title: 'Gather the documents', why_quote: r.documents[0].quote, state: 'proposed' });
+  const email = (r.how_to_send?.quote || '').match(/[\w.+-]+@[\w-]+\.[\w.-]+/)?.[0];
+  if (!seen.has('reply') && email) actions.push({ type: 'reply', title: `Email the documents to ${email.replace(/\.$/, '')}`, why_quote: r.how_to_send.quote, state: 'proposed' });
+  const order = { reminder: 0, checklist: 1, reply: 2 };
+  actions.sort((a, b) => order[a.type] - order[b.type]);
+  const due = reading.computed?.date;
+  actions.forEach(a => {
+    if (a.type === 'reminder' && due) { let d = addDays(due, -3); if (d < today()) d = today(); a.date = iso(d); }
+    if (a.type === 'checklist') a.checked = (r.documents || []).map(() => false);
+  });
+}
+const KIND = { reminder: 'Reminder', checklist: 'Checklist', reply: 'Reply' };
+
+function renderActions() {
+  if (!actions.length) { $('actions').innerHTML = ''; return; }
+  let html = '<p class="section-title">Next steps Courrier suggests. You decide.</p>';
+  actions.forEach((a, i) => {
+    const why = findQuote(buildIndex(letter), a.why_quote) ? `Because the letter says “${esc(a.why_quote)}”` : 'Courrier could not tie this to a line in the letter.';
+    let body = '', buttons = '';
+    if (a.type === 'reminder') {
+      body = `<div class="row"><span>Remind me on</span><input type="date" value="${a.date}" data-i="${i}" class="remDate" ${a.state !== 'proposed' ? 'disabled' : ''}><span class="why">${reading.computed?.date ? `Deadline is ${fmt(reading.computed.date)}.` : ''}</span></div>`;
+      buttons = `<button class="primary" data-do="approve" data-i="${i}">Add to my calendar</button>`;
+    }
+    if (a.type === 'checklist') {
+      body = `<ul class="docs">${reading.documents.map((d, j) => `<li><label><input type="checkbox" data-i="${i}" data-j="${j}" class="chk" ${a.checked[j] ? 'checked' : ''}> ${esc(d.value)}</label></li>`).join('')}</ul>`;
+      buttons = `<button class="primary" data-do="approve" data-i="${i}">Keep this checklist</button>`;
+    }
+    if (a.type === 'reply') {
+      if (a.loading) body = `<div class="row"><span class="spinner"></span><span class="why">Writing a draft in French…</span></div>`;
+      else if (a.draft) body = `<label class="why">Subject</label><input class="subj" data-i="${i}" value="${esc(a.draft.subject_fr)}" style="font:inherit;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--sheet)" ${a.state !== 'proposed' ? 'disabled' : ''}>
+        <textarea rows="9" data-i="${i}" class="draft" ${a.state !== 'proposed' ? 'disabled' : ''}>${esc(a.draft.body_fr)}</textarea>
+        <div class="gloss"><b>What this says in English</b>\n${esc(a.draft.body_en)}</div>`;
+      // The draft says the documents are attached. If the checklist disagrees, say so before the person sends it.
+      const list = actions.find(x => x.type === 'checklist');
+      const notReady = list ? list.checked.filter(c => !c).length : 0;
+      if (a.draft && notReady && a.state === 'proposed') body += `<div class="note">This email says the documents are attached, but ${notReady} of ${list.checked.length} are not ticked in your checklist yet.</div>`;
+      buttons = a.draft ? `<button class="primary" data-do="approve" data-i="${i}">Open in my email app</button>` : `<button class="primary" data-do="draft" data-i="${i}" ${a.loading ? 'disabled' : ''}>Draft it for me</button>`;
+    }
+    if (a.state === 'proposed') buttons += ` <button data-do="skip" data-i="${i}">Not now</button>`;
+    else buttons = `<span class="state">${a.state === 'approved' ? 'Done' : 'Skipped'}</span> <button class="link" data-do="undo" data-i="${i}">Undo</button>`;
+    html += `<div class="action ${a.state}"><header><span class="kind">${KIND[a.type]}</span><span class="title">${esc(a.title)}</span></header>
+      <span class="why">${why}</span>${body}<div class="row">${buttons}</div></div>`;
+  });
+  $('actions').innerHTML = html;
+}
+
+$('actions').addEventListener('input', e => {
+  const a = actions[e.target.dataset.i]; if (!a) return;
+  if (e.target.classList.contains('remDate')) a.date = e.target.value;
+  if (e.target.classList.contains('draft')) a.draft.body_fr = e.target.value;
+  if (e.target.classList.contains('subj')) a.draft.subject_fr = e.target.value;
+  if (e.target.classList.contains('chk')) { a.checked[e.target.dataset.j] = e.target.checked; renderActions(); }
+});
+$('actions').addEventListener('click', async e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const a = actions[b.dataset.i]; const what = b.dataset.do;
+  if (what === 'draft') return draftReply(a);
+  if (what === 'skip') { a.state = 'skipped'; addLog(`Skipped: ${a.title}.`, a); }
+  if (what === 'undo') {
+    const was = a.state; a.state = 'proposed';
+    addLog(was === 'approved' && a.type === 'reminder' ? 'Undid the reminder in Courrier. If you already imported it, delete the event from your calendar too.' : `Undid: ${a.title}.`);
+  }
+  if (what === 'approve') {
+    a.state = 'approved';
+    if (a.type === 'reminder') { downloadIcs(a); addLog(`Reminder file created for ${fmt(new Date(a.date + 'T00:00'))}. Open it to add it to your calendar.`, a); }
+    if (a.type === 'checklist') addLog(`Kept the checklist, ${a.checked.filter(Boolean).length} of ${a.checked.length} ready.`, a);
+    if (a.type === 'reply') {
+      const to = (reading.how_to_send?.quote + ' ' + letter).match(/[\w.+-]+@[\w-]+\.[\w.-]+/)?.[0] || '';
+      location.href = `mailto:${to}?subject=${encodeURIComponent(a.draft.subject_fr)}&body=${encodeURIComponent(a.draft.body_fr)}`;
+      addLog(`Opened the reply in your email app${to ? ' to ' + to : ''}. Courrier did not send it. Attach the documents and send it yourself.`, a);
+    }
+  }
+  renderActions();
+});
+
+function addLog(text) {
+  log.push({ when: new Date(), text });
+  $('logWrap').hidden = false;
+  $('log').innerHTML = log.map(l => `<li><span class="when">${l.when.toTimeString().slice(0, 5)}</span>${esc(l.text)}</li>`).join('');
+}
+
+function downloadIcs(a) {
+  const d = a.date.replace(/-/g, '');
+  const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Courrier POC//EN', 'BEGIN:VEVENT',
+    `UID:${Date.now()}@courrier`, `DTSTART;VALUE=DATE:${d}`, `SUMMARY:${reading.about.value} (deadline ${fmt(reading.computed.date)})`,
+    `DESCRIPTION:Ref ${reading.reference.value}. ${reading.what_they_want.value}`, 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+  const url = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' }));
+  Object.assign(document.createElement('a'), { href: url, download: 'courrier-reminder.ics' }).click();
+}
+
+async function draftReply(a) {
+  a.loading = true; renderActions();
+  const schema = { type: 'object', properties: { subject_fr: { type: 'string' }, body_fr: { type: 'string' }, body_en: { type: 'string' } }, required: ['subject_fr', 'body_fr', 'body_en'] };
+  const sys = `Write a short, polite reply in French to the administrative letter below, from the person who received it.
+Use the reference number in the subject. Say which documents are attached, as a list. Leave [Prénom Nom] for the signature.
+Do not invent facts, dates or documents that are not in the letter.
+body_en is a faithful English translation of body_fr.`;
+  try {
+    const out = JSON.parse(await chat([{ role: 'system', content: sys }, { role: 'user', content: letter }], schema));
+    out.subject_fr = out.subject_fr.replace(/^\s*objet\s*:\s*/i, '');
+    a.draft = out;
+    addLog('Courrier drafted a reply. Nothing has been sent.');
+  } catch (err) { addLog('The draft failed: ' + err.message); }
+  a.loading = false; renderActions();
+}
+
+// ---------- the reading flow ----------
+const STEP_NAMES = { sender: 'who wrote', about: 'subject', what_they_want: 'the ask', deadline: 'deadline', if_ignored: 'consequence', documents: 'documents', how_to_send: 'how to send', actions: 'next steps' };
+async function read(text) {
+  showLetter(text);
+  $('reading').innerHTML = ''; $('actions').innerHTML = ''; spans = {}; paintHighlights(null);
+  const t0 = performance.now();
+  const status = $('status');
+  status.innerHTML = '<span class="spinner"></span> Reading the letter…';
+  try {
+    const raw = await chat([{ role: 'system', content: READ_SYSTEM }, { role: 'user', content: text }], READ_SCHEMA, partial => {
+      const chips = Object.entries(STEP_NAMES).map(([k, name]) => `<span class="chip ${partial.includes(`"${k}"`) ? 'done' : ''}">${name}</span>`).join('');
+      status.innerHTML = `<span class="spinner"></span> Reading the letter… ${chips}`;
+    });
+    reading = JSON.parse(raw);
+    reading.computed = computeDeadline(reading);
+    buildActions();
+    renderReading();
+    status.innerHTML = '<span class="spinner"></span> Checking each answer against its line in the letter…';
+    let checked = true;
+    try { reading.support = await checkSupport(); renderReading(); } catch { checked = false; }
+    const answers = fieldOrder.filter(k => !(k === 'deadline' && reading.computed.rejected));
+    const good = answers.filter(trusted).length;
+    status.textContent = `Read in ${((performance.now() - t0) / 1000).toFixed(0)} s. ${good} of ${answers.length} answers point to a line in the letter that says the same thing.`
+      + (checked ? '' : ' Courrier could not run its second check, so the pins are unchecked.');
+  } catch (err) {
+    status.textContent = 'Courrier could not read this letter: ' + err.message + '. Is Ollama running?';
+  }
+}
+
+// ---------- files: PDF, image or text ----------
+// Where the text came from decides how much to trust it, so the note above the letter says it.
+function sourceNote(html, kind) {
+  $('photoNote').hidden = false;
+  $('photoNote').innerHTML = `${html}<div class="note ${kind === 'exact' ? 'plain' : ''}">${kind === 'exact'
+    ? 'Text taken straight from the PDF, so it matches the document word for word. No AI was used for this step.'
+    : 'The text below was transcribed by AI from an image. Compare it with the original before trusting the details.'}</div>`;
+}
+function clearSource() { $('photoNote').hidden = true; $('photoNote').innerHTML = ''; }
+
+async function transcribeImage(b64) {
+  const raw = await fetch('/api/chat', { method: 'POST', body: JSON.stringify({ model: MODEL, stream: false, think: false, options: { temperature: 0, num_ctx: 16384 },
+    messages: [{ role: 'user', content: 'Transcribe this letter exactly, line by line, in its original language. Output only the text.', images: [b64] }] }) }).then(r => r.json());
+  if (raw.error) throw new Error(raw.error);
+  return raw.message.content;
+}
+
+function startLoading(message) {
+  $('empty').hidden = true; $('btnStart').hidden = false; $('paper').textContent = ''; setView(doc ? 'doc' : 'text');
+  $('reading').innerHTML = ''; $('actions').innerHTML = ''; spans = {}; paintHighlights(null);
+  $('status').innerHTML = `<span class="spinner"></span> ${message}`;
+}
+
+// Rebuild lines from the PDF's text layer: a change in height starts a new line, a big jump starts a paragraph.
+// Every run of text keeps its place on the page, so a quote found in the text can be drawn back onto the PDF.
+async function pdfText(pdf) {
+  let text = ''; const items = [];
+  for (let n = 1; n <= pdf.numPages; n++) {
+    const page = await pdf.getPage(n);
+    const vp = page.getViewport({ scale: 1 });
+    const content = await page.getTextContent();
+    if (n > 1) text += '\n\n';
+    let lastY = null, lastEnd = null;
+    for (const it of content.items) {
+      if (!it.str) continue;
+      const [, , , d, x, y] = it.transform, h = Math.abs(d) || 10;
+      if (lastY !== null && Math.abs(y - lastY) > h * 0.5) text += lastY - y > h * 1.9 ? '\n\n' : '\n';
+      else if (lastEnd !== null && x - lastEnd > h * 0.15 && !/\s$/.test(text) && !/^\s/.test(it.str)) text += ' ';
+      const tx = pdfjsLib.Util.transform(vp.transform, it.transform);
+      const fh = Math.hypot(tx[2], tx[3]);
+      items.push({ start: text.length, end: text.length + it.str.length, page: n,
+        x: tx[4] / vp.width, y: (tx[5] - fh * 0.9) / vp.height, w: it.width / vp.width, h: (fh * 1.15) / vp.height });
+      text += it.str; lastY = y; lastEnd = x + it.width;
+    }
+  }
+  return { text, items };
+}
+
+async function pageImage(pdf, n) {
+  const page = await pdf.getPage(n);
+  const viewport = page.getViewport({ scale: 1600 / page.getViewport({ scale: 1 }).width });
+  const canvas = Object.assign(document.createElement('canvas'), { width: viewport.width, height: viewport.height });
+  await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+  return canvas.toDataURL('image/png');
+}
+
+async function handleFile(file) {
+  const name = file.name || 'file';
+  const isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(name);
+  const isImage = file.type.startsWith('image/');
+  const isText = file.type === 'text/plain' || /\.txt$/i.test(name);
+  try {
+    if (isPdf) {
+      clearDoc();
+      startLoading(`Opening ${esc(name)}…`);
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'vendor/pdf.worker.min.js';
+      const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+      const { text, items } = await pdfText(pdf);
+      doc = { pdf, items, exact: text.replace(/\s/g, '').length >= 80 };
+      setView('doc');
+      await renderPdfPages();
+      if (doc.exact) {
+        sourceNote('', 'exact');
+        return read(text);
+      }
+      // No text layer: a scan saved as PDF. Render the pages and transcribe them, at most 3 so it stays quick.
+      const count = Math.min(pdf.numPages, 3);
+      const first = await pageImage(pdf, 1);
+      sourceNote('', 'ai');
+      const parts = [];
+      for (let n = 1; n <= count; n++) {
+        $('status').innerHTML = `<span class="spinner"></span> This PDF is a scan. Transcribing page ${n} of ${count}…`;
+        parts.push(await transcribeImage((n === 1 ? first : await pageImage(pdf, n)).split(',')[1]));
+      }
+      if (pdf.numPages > count) parts.push(`[Courrier only read the first ${count} of ${pdf.numPages} pages.]`);
+      return read(parts.join('\n\n'));
+    }
+    clearDoc();
+    if (isImage) {
+      const dataUrl = await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(file); });
+      startLoading('Transcribing your photo…');
+      sourceNote(`<img class="photo" src="${dataUrl}" alt="Your photo">`, 'ai');
+      return read(await transcribeImage(dataUrl.split(',')[1]));
+    }
+    if (isText) { clearSource(); return read(await file.text()); }
+    $('status').textContent = `Courrier reads PDF files, photos and .txt files. "${name}" is none of those, so you can export it as a PDF and try again.`;
+  } catch (err) {
+    $('status').textContent = `Courrier could not open "${name}": ${err.message}`;
+  }
+}
+
+$('btnSample').onclick = async () => { clearSource(); clearDoc(); read(await fetch('letter1.txt').then(r => r.text())); };
+$('btnSample2').onclick = async () => { clearSource(); clearDoc(); read(await fetch('letter2.txt').then(r => r.text())); };
+// A clean reload, so a reading still running cannot land on the new page.
+$('btnStart').onclick = () => location.reload();
+$('btnRead').onclick = () => { const t = $('pasteBox').value.trim(); if (t) read(t); };
+$('upload').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (f) handleFile(f); };
+const wrap = $('paperWrap');
+wrap.addEventListener('dragover', e => { e.preventDefault(); wrap.classList.add('over'); });
+wrap.addEventListener('dragleave', e => { if (!wrap.contains(e.relatedTarget)) wrap.classList.remove('over'); });
+wrap.addEventListener('drop', e => { e.preventDefault(); wrap.classList.remove('over'); const f = e.dataTransfer.files[0]; if (f) handleFile(f); });
+window.addEventListener('resize', () => reading && view === 'text' && placePins());
+document.querySelectorAll('#viewSwitch button').forEach(b => b.onclick = () => setView(b.dataset.view));
+</script>
+</body>
+</html>

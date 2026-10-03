@@ -1,0 +1,5 @@
+# Local test runners. They list private file names and need a test-only server route.
+tools/eval*.mjs
+eval/
+server.log
+node_modules/
