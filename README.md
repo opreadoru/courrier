@@ -6,6 +6,8 @@ It reads the letter and says in plain English who wrote, what they want, by when
 
 Proof of concept, October 2026. Designed and built by [Alex Oprea](https://opreadoru.com). Free and open source under the MIT licence.
 
+See it live: [courrier-six.vercel.app](https://courrier-six.vercel.app). The live demo runs on Gemini 2.5 Flash-Lite with a daily limit, and its two sample letters play back recorded readings. The version in this repo runs entirely on your own computer.
+
 ![Courrier reading a sample letter: the letter on the left with numbered pins, the answers on the right](docs/screenshot.png)
 
 ## Why not just ask a chatbot
