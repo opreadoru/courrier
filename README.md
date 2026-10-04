@@ -4,9 +4,9 @@ Courrier helps someone who lives in France, and does not read French well, under
 
 It reads the letter and says in plain English who wrote, what they want, by when, what happens if you do nothing, which documents to send and how to reach them. Every answer is pinned to the line of the letter it came from, so you can check it. Then it suggests a reminder, a checklist and a reply draft, and you approve, edit or skip each one. Courrier never sends anything.
 
-Proof of concept, October 2026. Designed and built by [Alex Oprea](https://opreadoru.com). Free and open source under the MIT licence.
+October 2026. Designed and built by [Alex Oprea](https://opreadoru.com). Free and open source under the MIT licence.
 
-See it live: [courrier-six.vercel.app](https://courrier-six.vercel.app). The live demo runs on Gemini 2.5 Flash-Lite with a daily limit, and its two sample letters play back recorded readings. The version in this repo runs entirely on your own computer.
+See it live: [courrier-six.vercel.app](https://courrier-six.vercel.app). The version in this repo runs entirely on your own computer.
 
 ![Courrier reading a sample letter: the letter on the left with numbered pins, the answers on the right](docs/screenshot.png)
 
@@ -65,7 +65,7 @@ Add `?model=` to the address to try another Ollama model, for example `http://lo
 - Suggested actions can be out of date. It once offered a cancellation reply for a contract from 2022.
 - Phone photos of creased letters are untested.
 - It reads French letters and answers in English. Reply drafts are in French, with an English version next to them.
-- It is a proof of concept. Use it to understand a letter, and check anything that matters with whoever sent it.
+- Use it to understand a letter, and check anything that matters with whoever sent it.
 
 ## Files
 
